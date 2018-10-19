@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+
+{% block content %}
+    {% if form.errors %}
+        <p class="login-help">{% trans "Your email and password didn't match. Please try again." %}</p>
+    {% endif %}
+
+    <section class="create-section">
+      <div class="container">
+        <div class="main">
+          <div class="panel-heading text-center">
+            <h2 class="panel-heading__title">{% trans "Sign In" %}</h2>
+          </div>
+
+          <div class="main__panel">
+            <form class="main__form login-form {% if is_signup %}selected-form{% endif %}" method="POST" action="{% url 'login' %}">
+            {% csrf_token %}
+            <div class="main__form-group">
+              <label for="" class="control--panel">{% trans "Your email" %}:</label>
+              <div class="main__input-group">
+                <input class="main__input" type="text" placeholder="{% trans 'email' %}" name="username" required>
+              </div>
+            </div>
+            <div class="main__form-group">
+              <label for="" class="control--panel">{% trans "Password" %}:</label>
+              <div class="main__input-group">
+                <input class="main__input" type="password" placeholder="{% trans 'password' %}" name="password" required>
+              </div>
+            </div>
+            <div class="main__checkbox-group">
+              <input type="checkbox" name="remember" value="1" id="" class="checkbox-group__accept">
+              <label class="checkbox-group__label">
+                  {% trans "Remember me" %}
+              </label>
+              <a href="{% url 'password_reset' %}" class="forgot-passw">{% trans "Forgot password?" %}</a>
+            </div>
+            <div class="main__button">
+              <button type="submit" class="btn btn--large btn--long">{% trans "Sign In" %}</button>
+            </div>
+            </form>
+          </div>
+          <div class="main__sign-in">
+            <a class="btn btn--large btn--long btn--border" id="createAccount"><span class="btn--title">{% trans "Don’t have an account?" %}</span> {% trans "Create account" %}</a>
+          </div>
+        </div>
+      </div>
+    </section>
+{% endblock %}

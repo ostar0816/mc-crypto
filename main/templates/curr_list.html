@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-10">
+            <h1>Currencies with arbitrage opportunities</h1>
+            <p>In this very moment, Macchina has detected arbitrage
+            opportunities between the following {{ curr_list|length }}
+            currencies:</p>
+            <ul class="elements-list">
+                {% for curr in curr_list %}
+                <li>{{ curr }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

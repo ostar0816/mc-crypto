@@ -1,0 +1,26 @@
+{
+  "name": "shore",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./static/js/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "webpack --config webpack.config.js --mode development",
+    "dev-watch": "webpack --config webpack.config.js -w --mode development",
+    "prod": "webpack --config webpack_production.config.js --mode production"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "build-assets": "^0.1.0",
+    "css-loader": "^0.28.9",
+    "webpack": "^4.1.1",
+    "webpack-cli": "^2.0.12"
+  },
+  "dependencies": {
+    "path": "^0.12.7",
+    "uglifyjs-webpack-plugin": "^1.2.3",
+    "webpack-bundle-tracker": "^0.3.0",
+    "webpack-stats-plugin": "^0.1.5"
+  }
+}

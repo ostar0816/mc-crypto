@@ -1,0 +1,254 @@
+#exclApiKeys {
+  margin-top: 10px;
+}
+
+.exclApiInputs {
+  margin-left: 20px;
+}
+
+#preferencesSubmit {
+  margin: 10px 0 15px 0;
+}
+
+#two_fa_choose_method {
+  background-color: rgba(255, 255, 255, .35);
+  border: 2px solid white;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.preferenceExclInput {
+  background-color: #000;
+  opacity: .4;
+  color: #FFFDFD;
+  margin-left: 5px;
+  width: 80%;
+}
+
+.two_fa_auth_h3 {
+  color: white;
+}
+
+.two_fa_auth_p {
+  color: white;
+  font-size: 14px;
+}
+
+.twoFaCompleted {
+  text-align: center;
+  height: 50px;
+  background-color: rgba(0, 0, 0, .35);
+}
+
+.twoFaCompletedChild {
+  margin-top: 11px;
+}
+
+.twoFaAuthHeader {
+  margin-top: 10px;
+}
+
+#skipAPIKeysConfiguration {
+  margin-top: 20px;
+  text-align: center;
+}
+
+#profileSubmit {
+  text-align: center;
+}
+
+#profileForm .form-input {
+  margin-bottom: 10px;
+}
+
+#preferencesMenu {
+  min-height: 100%;
+  background: rgba(0, 0, 0, .25);
+}
+
+#preferencesContent {
+  min-height: 100%;
+  background: rgba(255, 255, 255, .1);
+}
+
+.menuItemTitle {
+  height: 11px;
+  color: #FFFDFD;
+  font-size: 15px;
+}
+
+.menuItemText {
+  margin: 0;
+  color: #FFFDFD;
+  opacity: .5;
+  font-size: 12px;
+}
+
+#prefMenuItems {
+  margin-top: 20px;
+}
+
+.prefMenuItemActive {
+  cursor: pointer;
+  border-left: 2px solid #F179DF;
+  padding: 5px 15px;
+}
+.prefMenuItem {
+  cursor: pointer;
+  padding: 5px 15px;
+}
+
+hr.hrStyle1{
+  border-top: 0;
+  opacity: .4;
+  clear:both;
+}
+
+.prefContentH6 {
+  color: #FFFDFD;
+  display: inline-block;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.preferencesSelect {
+  vertical-align: middle;
+  background-color: #000;
+  opacity: .4;
+  color: #FFFDFD;
+  margin-left: 20px;
+  height: 35px;
+  font-size: 14px;
+}
+
+.prefInputTxt {
+  background-color: #000;
+  opacity: .4;
+  color: #FFFDFD;
+}
+.saveChangesBtn {
+  margin-bottom: 10px;
+}
+
+#registration-not-accepted-modal {
+  margin-top: 80px;
+}
+
+#goToMacChain {
+  color: #9F44E6;
+}
+
+#goToMacChain:hover {
+  color: hotpink;
+}
+
+.includeExchgsBtn {
+  padding-left: 20px;
+  position: relative;
+  text-align: left;
+  height: 50px;
+  width: 100%;
+  color: #ffffff;
+  font-size: 14px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  outline: none;
+}
+.includeExchgsBtn::before {
+  font-family: 'ElegantIcons';
+  font-size: 22px;
+  line-height: 21px;
+  display: block;
+  position: absolute;
+  top: 8px;
+  right: 0;
+  padding: 5px 14px 5px 13px;
+  border-left: 1px solid rgba(255,255,255,0.1);
+}
+.includeExchgsBtn[aria-expanded='false']::before {
+  content: '\4c';
+}
+.includeExchgsBtn[aria-expanded='true']::before {
+  content: '\4b';
+}
+.includeExchgsInnerBtn {
+  color: cornflowerblue;
+  font-size: 13px;
+  background-color: rgba(255,255,255,.03);
+  border: 1px solid cornflowerblue;
+  margin: 2px;
+}
+
+.includeExchgsInnerBtn:hover {
+  background-color: rgba(255,255,255,.1);
+}
+
+.includeExchangesContent {
+  position: relative;
+  float: left;
+  padding: 20px;
+  margin-top: 10px;
+  background: #382379;
+  border-radius: 5px;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0px 10px 20px 0 rgba(0, 0, 0, 0.07);
+  -webkit-box-shadow: 0px 10px 20px 0 rgba(0, 0, 0, 0.07);
+  -moz-box-shadow: 0px 10px 20px 0 rgba(0, 0, 0, 0.07);
+}
+.includeExchangesContent::before {
+  position: absolute;
+  content: '';
+  top: -6px;
+  right: 50%;
+  width: 12px;
+  height: 12px;
+  background: #392777;
+  transform: rotate(45deg);
+  border-left: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.includeExchangesButtons {
+  margin-top: 5px;
+  margin-bottom: 12px;
+}
+/*.includeExchangesButtons > button:focus, .includeExchangesButtons > button:focus-within, .includeExchangesButtons > button:active {
+  background-color: #201342!important;
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.5);
+}*/
+.includeExchangesButtons > .btn {
+  margin-right: 12px;
+  margin-bottom: 6px;
+}
+
+.includeExchangesActiveButton {
+  background: #201342!important;
+  color: #ffffff!important;
+  border: 1px solid rgba(255,255,255,0.5)!important;
+}
+
+.col-centered {
+  float: none;
+  margin: 0 auto;
+}
+
+.includeExchangesUpdate {
+  margin-left: 15px;
+  margin-top: 16px;
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.includeExchDiv {
+  margin-top: 5px;
+}
+
+.detailsList2 {
+  width: 36%;
+  display: inline-block;
+}

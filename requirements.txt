@@ -1,0 +1,25 @@
+-e git+git@github.com:rubik/romulus.git#egg=romulus
+-e git+git@github.com:rubik/yosei.git#egg=yosei
+decorator==4.2.1
+Django==2.0.1
+django-webpack-loader==0.5.0
+mongo-datatables==0.2.5
+psycopg2==2.7.3.2
+pymongo==3.6.0
+pyparsing==2.2.0
+pytz==2017.3
+django-configurations==2.0
+django-formtools==2.1
+django-otp==0.4.2
+django-phonenumber-field==1.3.0
+twilio==6.10.3
+gunicorn
+djangorestframework==3.7.7
+djangorestframework-jwt==1.11.0
+qrcode==5.3
+autobahn[asyncio]
+celery[redis]
+geoip2==2.7.0
+django-fernet-fields==0.5
+django-anymail==2.0
+django-environ==0.4.4

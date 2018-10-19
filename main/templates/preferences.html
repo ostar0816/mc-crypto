@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}
+{% trans "Macchina — Preferences" %}
+{% endblock %}
+
+{% block head_css %}
+<link rel="stylesheet" type="text/css" href="{% static "css/preferences.css" %}">
+{% endblock %}
+
+{% block content %}
+
+<header class="pref-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 col-xs-12">
+                <h4 class="page-name">Preferences</h4>
+            </div>
+        </div>
+    </div>
+</header>
+<div class="preferences-body" id="preferencesBody">
+    <div class="container">
+        <div class="row">
+            <!--left-navbar-start------->
+            <div class="col-sm-3 preferences-menu" id="preferencesMenu">
+                <div class="pref-menu__items-box" id="prefMenuItems">
+                    <div class="pref-menu__item pref-menu__item--active" data-tosection="generalSection">
+                        <h6 class="menu-item__title">General</h6>
+                        <p class="menu-item__text">
+                            Notices and mailings
+                        </p>
+                    </div>
+                    <!--<div class="pref-menu__item" data-tosection="apiKeysSection">
+                        <h6 class="menu-item__title">API</h6>
+                        <div class="menu-item__text">
+                            Keys configuration
+                        </div>
+                    </div>-->
+                    <div class="pref-menu__item" data-tosection="passwordSection">
+                        <h6 class="menu-item__title">Password</h6>
+                        <div class="menu-item__text">
+                            Change password
+                        </div>
+                    </div>
+                    <div class="pref-menu__item" data-tosection="authentication">
+                        <h6 class="menu-item__title">2-Factor Authentication</h6>
+                        <div class="menu-item__text">
+                            Google Authenticator, SMS
+                        </div>
+                    </div>
+                    <div class="pref-menu__item" data-tosection="accessHistorySection">
+                        <h6 class="menu-item__title">Access history</h6>
+                        <div class="menu-item__text">
+                            Users sessions
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--left-navbar-END-->
+            <div class="col-sm-9 pref-content" id="preferencesContent">
+                <div class="pref-content__main">
+                    <section id="generalSection" class="pref-content__section">
+                        <h5 class="pref-content__section__title">General</h5>
+                        <div class="pref-content__container">
+                            <div class="pref__form-group no-gutter">
+                                <div class="col-sm-3">
+                                    <h6 class="pref__control--panel">Your currency:</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <select id="preferencesSelectCurrency" class="main__input" name="excl-curr[]">
+                                        <option value="USD">US Dollar</option>
+                                        <option value="EUR">Euro</option>
+                                        <option value="JPY">Japanese yen</option>
+                                        <option value="GBP">British pound</option>
+                                        <option value="CHF">Swiss franc</option>
+                                        <option value="CAD">Canadian dollar</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="pref__form-group no-gutter">
+                                <div class="col-sm-3">
+                                    <h6 class="pref__control--panel">Your timezone:</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <select id="preferencesSelectTimezone" class="main__input" name="excl-curr[]"></select>
+                                </div>
+                            </div>
+                            <div class="pref__checkbox-group no-gutter">
+                                <div class="col-sm-3">
+                                    <h6 class="pref__control--panel respons-none">Notifications:</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <div class="checkbox-box">
+                                        <input type="checkbox" id="prefNotificationsCheckbox" class="checkbox-group__accept">
+                                        <label for="prefNotificationsCheckbox" class="checkbox__title">I want to receive important news and emails</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pref__btn-group no-gutter">
+                                <div class="col-sm-9 col-sm-offset-3">
+                                    <div class="pref__button">
+                                        <button class="btn btn--default btn--white">Save changes</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section><!--Generel-section-END-->
+                    <!--Api-section-START-->
+                    <!--<section id="apiKeysSection" class="pref-content__section">
+                        <h5 class="pref-content__section__title">API</h5>
+                        <div class="pref-content__container">
+                            <form action="/save_preferences/" method="POST" id="savePreferencesForm">
+                                {% csrf_token %}
+                                <div class="pref__form-group no-gutter margin-bot-40">
+                                    <div class="col-sm-3">
+                                        <h6 class="pref__control--panel">Exchanges you have:</h6>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <select id="incl-exch" class="js-select" name="incl-exch[]" multiple="multiple" style='display: none; width: 100%'>
+                                            {% for e in exchanges %}
+                                            <option value="{{ e }}">{{ e }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                </div>
+                                <div id="apiKeys"></div>
+                                <div class="pref__btn-group no-gutter" id="preferencesSubmit">
+                                    <div class="col-sm-9 col-sm-offset-3">
+                                        <div class="pref__btn-box">
+                                            <button class="btn btn--default btn--white">Save changes</button>
+                                            <a class="pref__help">How find API key?</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </section>--> <!--Api-section-END-->
+                    <!--passwordSection-->
+                    <section id="passwordSection" class="pref-content__section">
+                        <h5 class="pref-content__section__title">Password</h5>
+                        <div class="pref-content__container">
+                            <div class="pref__form-group no-gutter">
+                                <div class="col-sm-3">
+                                    <h6 class="pref__control--panel">Current password:</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="password" id="currentPassword" class="main__input" placeholder="Type your current password"/>
+                                </div>
+                            </div>
+                            <div class="pref__form-group no-gutter">
+                                <div class="col-sm-3">
+                                    <h6 class="pref__control--panel">New password:</h6>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="password" id="newPassword" class="main__input" placeholder="Type new password" />
+                                </div>
+                            </div>
+                            <div class="pref__form-group no-gutter">
+                                <div class="col-sm-3">
+                                    <h6 class="pref__control--panel">Repeat new password:</h6>
+                                </div>
+                                <div class="col-sm-9" style="text-align: center">
+                                    <input type="password" id="newRepeatPassword" class="main__input" placeholder="Repeat new password" />
+                                    <h6 class="pass-wrong" id="passWrong"></h6>
+                                </div>
+                            </div>
+                            <div class="pref__btn-group no-gutter">
+                                <div class="col-sm-9 col-sm-offset-3">
+                                    <div class="pref__button">
+                                        <button class="btn btn--default btn--white" id="changePassBtn">Change Password</button>
+                                    </div>
+                                </div>
+                                <!-- trans should be added -->
+                            </div>
+                        </div>
+                    </section><!--passwordSection-END-->
+                    <!--2-factor-authentication-->
+                    <section id="authentication" class="pref-content__section">
+                        <h5 class="pref-content__section__title">{% trans "2-Factor Authentication" %}</h5>
+                        <div class="pref-content__container">
+                          {% if wizard.steps.current == 'method' %}
+                            <p class="auth__control--panel">{% blocktrans %}Choose a method:{% endblocktrans %}</p>
+                            {% elif wizard.steps.current == 'generator' %}
+                            <p class="auth__control--panel">{% blocktrans %}To start using a token generator, please use your smartphone to scan the QR code below. For example, use Google Authenticator. Then, enter the token generated by the app. {% endblocktrans %}</p>
+                            <p class="qr-code-box"><img src="{{ QR_URL }}" alt="QR Code" class="qr-code" /></p>
+                            {% elif wizard.steps.current == 'sms' %}
+                            <p class="auth__control--panel">{% blocktrans %}Please enter the phone number you wish to receive the text messages on. This number will be validated in the next step. {% endblocktrans %}</p>
+                            {% elif wizard.steps.current == 'validation' %} {% if challenge_succeeded %} {% if device.method == 'call' %}
+                            <p>{% blocktrans %}We are calling your phone right now, please enter the digits you hear.{% endblocktrans %}</p>
+                            {% elif device.method == 'sms' %}
+                            <p>{% blocktrans %}We sent you a text message, please enter the tokens we sent.{% endblocktrans %}</p>
+                            {% endif %} {% else %}
+                            <p class="alert alert-warning" role="alert">{% blocktrans %}We've encountered an issue with the selected authentication method. Please go back and verify that you entered your information correctly, try again, or use a different authentication method instead. If the issue persists, contact the site administrator.{% endblocktrans %}</p>
+                            {% endif %} {% endif %}
+                            <form action="" method="post">{% csrf_token %} {% include "two_factor/_wizard_forms.html" %} {# hidden submit button to enable [enter] key #}
+                                <div style="margin-left: -9999px">
+                                    <input type="submit" value="" />
+                                </div>
+                                {% include "two_factor/_wizard_actions.html" %}
+                            </form>
+                            <form method="post" action={% url "set_2fa_mode" %} id="Set2faMode">
+                                {% csrf_token %}
+                                <fieldset id="group1">
+                                    {% if is_only_auth %}
+                                    <div class="radio-box">
+                                        <label class="radio__title">
+                                          <input type="radio" name="group1" value="only_auth" checked>Use only for Authorization
+                                        </label>
+                                    </div>
+                                    <div class="radio-box no-margin">
+                                        <label class="radio__title">
+                                          <input type="radio" name="group1" value="full_protection">Full Protection
+                                        </label>
+                                    </div>
+                                    {% else %}
+                                    <div class="radio-box">
+                                        <input type="radio" name="group1" value="only_auth">
+                                        <p class="radio__title">Use only for Authorization</p>
+                                    </div>
+                                    <div class="radio-box">
+                                        <input type="radio" name="group1" value="full_protection" checked>
+                                        <p class="radio__title">Full Protection</p>
+                                    </div>
+                                    {% endif %}
+                                </fieldset>
+                                <div class="pref__btn-group">
+                                    <input class="btn btn--default btn--white" type="submit" value="Save Changes">
+                                </div>
+                            </form>
+                        </div>
+                    </section><!--2-factor-authentication-END-->
+                    <!--HistorySection-->
+                    <section id="accessHistorySection" class="pref-content__section border-none">
+                        <h5 class="pref-content__section__title">Access History</h5>
+                        <div class="pref-content__container">
+                            <div class="pref-table-sec table-responsive">
+                                <table class="pref-table table table-striped">
+                                    <thead class="pref-table__head">
+                                        <tr>
+                                            <th>Date/time</th>
+                                            <th>IP address</th>
+                                            <th>Country</th>
+                                            <th>Browser</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="pref-table__body">
+                                        {% for log in log_list %}
+                                        <tr>
+                                            <th>{{ log.date }}</th>
+                                            <th>{{ log.ip_address }}</th>
+                                            <th>{{ log.country }}</th>
+                                            <th>{{ log.browser }}</th>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section><!--HistorySection-END-->
+                </div><!--pref-content__main-->
+            </div><!--pref-content-->
+        </div><!--row-->
+    </div><!--container-->
+  </div><!--preferences-body-->
+
+{% endblock %}

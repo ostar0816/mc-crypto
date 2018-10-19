@@ -1,0 +1,311 @@
+{% load i18n %}
+<script id="details-tpl" type="text/x-jsrender">
+    <div class="step-card">
+      <div class="chart-head">
+      <div class="col-xs-12 col-sm-6">
+        <div class="column required-trades">
+          [%:stepsHtml%]
+        </div>
+      </div>
+      <div class="col-xs-12 col-sm-6">
+        <div class="column market-data">[%:marketDataHtml%]</div>
+      </div>
+      </div>
+      <div class="chart-body">
+        <div class="col-xs-12 col-sm-6">
+          <div class="column trading-ind">
+            <h3 class="subtitle">Trading indications
+            <a class="tooltips help-sign" href="javascript:void(0);">
+            &nbsp;&nbsp;?&nbsp;&nbsp;
+            <span>{% trans "Parallel trading means executing all the orders simultanously on all the exchanges, while in a sequential execution only one trade at a time is performed (possibly involving withdrawals)." %}</span>
+            </a></h3>
+            <p>{% trans "Best amounts with" %} <strong>{% trans "taker" %}</strong> {% trans "orders" %}<p>
+            <ul>
+              <li><i>{% trans "sequential" %}</i> {% trans "trading" %}:
+              [%:bestSeqAmount%] [%:amountsTicker%] {% trans "for an estimated profit of" %} [%:bestSeqPl%]%</li>
+              <li><i>{% trans "parallel" %}</i> {% trans "trading" %}:
+              [%:bestParAmount%] [%:amountsTicker%] {% trans "for an estimated profit of" %} [%:bestParPl%]%</li>
+          </ul>
+          </div>
+          <div class="column">
+            [%:detailsHtml%]
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <div class="column spread-vs-trade">
+            [%:chartHtml%]
+          </div>
+        </div>
+      </div>
+    </div>
+</script>
+
+<script id="pl-chart-tpl" type="text/x-jsrender">
+    <h3 class="subtitle spread-chart">{% trans "Spread vs trade amount" %}
+    <a class="tooltips help-sign" href="javascript:void(0);">
+    &nbsp;&nbsp;?&nbsp;&nbsp;
+    <span>{% trans "Liquidity: this chart represents the change in prices (and thus the spread) between the two markets as a function of the trade amount.  Hover on the chart points for more data." %}</span>
+    </a></h3>
+    <div class="chart-scroll-wrap">
+        <div class="chart-container">
+            <canvas id="[%>chartId%]"></canvas>
+        </div>
+    </div>
+    <script>
+    var ctx = document.getElementById("[%>chartId%]").getContext("2d");
+    var xv = parseFloat('[%:v[0] || 0%]');
+
+    let btnId = 'btn-' + Math.floor(Math.random() * Math.floor(100000));
+    $('.startTradesBtn').attr('id', btnId);
+
+    const startTradesModal = `
+        <div class="modal fade" id="start-trades-modal" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="dash__modal-header">
+                        <h4 class="modal-title">Confirm trading plan</h4>
+                        <!--<a href="javascript:void(0)" class="icon_close close close-start-trades-modal" aria-label="Close" data-dismiss="modal"></a>-->
+                    </div>
+                    <div class="dash__modal-body">
+                        <div class="dash__radio-box">
+                        <input id="parallelExecutionRadio" class="dark-radio" type="radio" name="startTradesModalRadio" value="parallel" checked/>
+                        <label for="parallelExecutionRadio" class="modal__control--panel">{% trans "Parallel execution" %}</label>
+                        </div>
+                        <div class="dash__radio-box">
+                        <input id="sequentialExecutionRadio" class="dark-radio" type="radio" name="startTradesModalRadio" value="sequential"/>
+                        <label for="sequentialExecutionRadio" class="modal__control--panel">{% trans "Sequential execution" %}</label>
+                        </div>
+                        <div class="dash__modal-checkbox-box">
+                            <input id="checkBalanceCheckbox" class="dark-checkbox" type="checkbox" name="startTradesModalCheckbox"/>
+                            <label for="checkBalanceCheckbox" class="modal__control--panel">{% trans "Check balance" %}</label>
+                        </div>
+                        [%:amount_input_html%]
+                      <div class="dash__modal__text-box">
+                            <p class="dash__modal__text">I fully acknowledge that due to events outside of Macchina's control the trades might not be profitable.</p>
+                      </div>
+                    </div>
+                    <div class="dash__modal-footer">
+                      <div class="pull-left">
+                        <button id="cancelTrades" class="btn btn--default btn--border btn--danger closeStartTradesModal" data-dismiss="modal">Cancel</button>
+                      </div>
+                      <div class="pull-right">
+                         <button id="acceptTrades" class="btn btn--default btn--success">Accept</button>
+                      </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    `;
+
+    if($('#start-trades-modal').length <= 0) {
+        $('body').append(startTradesModal);
+
+        $('#acceptTrades').on('click', () => {
+            $('.modal-footer').hide();
+            $('.default').hide();
+
+            if(window.socketIsOpened) {
+                let loop = [%:loop_markets%];
+                let amounts = [];
+                loop.forEach( (item, i) => {
+                    let input_id = item[0] + "_amount_input";
+                    let amount = $("#"+input_id).val();
+                    amounts.push([item[0], amount]);
+                });
+                let exec_type = $("input[name='startTradesModalRadio']:checked").val();
+                let check_balance = $("input[name='startTradesModalCheckbox']").is(":checked");
+                let user_id = {{request.user.id}};
+                let trade_request = {
+                    'loop': loop,
+                    'amount': amounts,
+                    'exec_type': exec_type,
+                    'check_balance': check_balance,
+                    'user_id': user_id,
+                };
+                console.log("trade_request", JSON.stringify(trade_request));
+                socket.send(JSON.stringify(trade_request));
+                window.tradingOn = true;
+            }
+        });
+    }
+
+    $('#dt_table tbody').on('click', '#' + btnId, function() {
+        if(window.tradingOn) {
+            alert('One trading transaction is on. Please wait.');
+            return;
+        }
+
+        $('#start-trades-modal').modal('show');
+        $('.steps').html('');
+        $('.default').show();
+        $('.modal-footer').show();
+    });
+
+    const spreadData = JSON.parse('[%:spreadData%]');
+    const xs = JSON.parse('[%:xs%]');
+
+    const squareColors = ['#ffffff'];
+    const datasets = [{
+        label: feeLegends.no_fee,
+        data: spreadData.no_fee,
+        fill: false,
+        borderColor: "#ffffff",
+        backgroundColor: "#4b48d640",
+        cubicInterpolationMode: "monotone",
+    }];
+
+    if ([%:oneFee%]) {
+        datasets.push({
+            label: feeLegends.maker_taker_fee,
+            data: spreadData.taker_fee,
+            fill: false,
+            borderColor: "#ff9411",
+            backgroundColor: "#4b48d640",
+            cubicInterpolationMode: "monotone",
+        });
+        squareColors.push('#ff9411');
+    } else {
+        datasets.push({
+            label: feeLegends.maker_fee,
+            data: spreadData.maker_fee,
+            fill: false,
+            borderColor: "#6bb131",
+            backgroundColor: "#4b48d640",
+            cubicInterpolationMode: "monotone",
+        });
+        datasets.push({
+            label: feeLegends.taker_fee,
+            data: spreadData.taker_fee,
+            fill: false,
+            borderColor: "#d0021b",
+            backgroundColor: "#4b48d640",
+            cubicInterpolationMode: "monotone",
+        });
+        squareColors.push('#6bb131');
+        squareColors.push('#d0021b');
+    }
+
+    var options = {
+        maintainAspectRatio: false,
+        legend: {
+            display: true,
+            labels: {
+                fontColor: 'rgb(255, 255, 255)'
+            }
+        },
+        scales: {
+            xAxes: [{
+                gridLines: {
+                    display: true,
+                    color: 'rgba(255, 255, 255, 0.1)',
+                },
+                ticks: {
+                    callback: function(value, index, values) {
+                        return value.toFixed(2);
+                    },
+                    fontColor: "#fff",
+                    autoSkip: true,
+                    maxTicksLimit: 20,
+                },
+                scaleLabel: {
+                    display: true,
+                    fontColor: '#ffffff',
+                    labelString: "[%:amountsTicker%]",
+                },
+            }],
+            yAxes: [{
+                gridLines: {
+                    display: true,
+                    color: 'rgba(255, 255, 255, 0.1)',
+                },
+                ticks: {
+                    callback: function(value, index, values) {
+                        return value.toFixed(2) + "%";
+                    },
+                    fontColor: "#fff"
+                }
+            }]
+        },
+        tooltips: {
+            mode: "label",
+            label: "Spread and prices",
+            titleFontColor: "black",
+            bodyFontColor: "black",
+            backgroundColor: "#fff",
+            titleFontSize: 14,
+            bodyFontSize: 13,
+            callbacks: {
+                title: function(tooltipItems, d) {
+                    return tooltipItems[0].xLabel + ' ' + "[%:amountsTicker%]";
+                },
+                label: function(tooltipItem, d) {
+                    return tooltipItem.yLabel.toFixed(3) + "%";
+                },
+                labelColor: function(tooltipItem, d) {
+                    let borderColor;
+                    if (tooltipItem.datasetIndex === 0) {
+                        borderColor = '#404040';
+                    } else {
+                        borderColor = squareColors[tooltipItem.datasetIndex];
+                    }
+                    return {
+                        borderColor: borderColor,
+                        backgroundColor: squareColors[tooltipItem.datasetIndex],
+                    };
+                },
+            },
+        },
+        annotation: {
+            annotations: [
+           ]
+       },
+    };
+    // Decide whether to show the red line or not
+    let show_red_line = false;
+    var sign = 1;
+    for (var i=0; i<spreadData.taker_fee.length; i++) {
+        var e = spreadData.taker_fee[i];
+        if (i == 0) {
+            sign = Math.sign(e.y);
+        }
+        if (Math.sign(e.y) != sign ||
+            (e.y >= -1.0 && e.y <= 1.0)) {
+            show_red_line = true;
+            break;
+        }
+    }
+    if (show_red_line) {
+        options.annotation.annotations.push({
+            type: "line",
+            mode: "horizontal",
+            scaleID: "y-axis-0",
+            value: xv,
+            borderColor: "red",
+        });
+    }
+    if (!!xv) {
+        options.annotation.annotations.push({
+            type: "line",
+            mode: "vertical",
+            scaleID: "x-axis-0",
+            value: xv,
+            borderDash: [5, 3],
+            borderColor: "#d95000",
+            label: {
+              content: "Break-even point",
+              enabled: false,
+              position: "left"
+            }
+        });
+    }
+    new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: xs,
+            datasets: datasets,
+        },
+        options: options,
+    });
+    [%:"<"%]/script>
+</script>

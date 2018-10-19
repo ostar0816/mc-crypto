@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+    {% if form.errors %}
+        <p class="login-help">{% trans "Passwords don't match or they are too short. Provide 8 characters minimum." %}</p>
+    {% endif %}
+
+    <section class="create-section">
+      <div class="container">
+        <div class="main">
+          <div class="panel-heading text-center">
+            <h2 class="panel-heading__title">{% trans "Create Account" %}</h2>
+          </div>
+
+          <div class="main__panel">
+            <form class="main__form login-form {% if is_signup %}selected-form{% endif %}" method="POST" action="{% url 'signup' %}">
+            {% csrf_token %}
+            <div class="main__form-group">
+              <label for="id_email" class="control--panel">{% trans "Your email" %}:</label>
+              <div class="main__input-group">
+                <input class="main__input" type="email" name="email" placeholder="{% trans "Email" %}" maxlength="254" autofocus required id="id_email">
+              </div>
+            </div>
+            <div class="main__form-group">
+              <label for="id_password1" class="control--panel">{% trans "Password" %}:</label>
+              <div class="main__input-group">
+                <input type="password" name="password1" class="main__input" placeholder="{% trans 'Password' %}" required id="id_password1">
+              </div>
+            </div>
+            <div class="main__form-group">
+              <label for="id_password2" class="control--panel">{% trans "Password confirmation" %}:</label>
+              <div class="main__input-group">
+                <input type="password" name="password2" class="main__input" placeholder="{% trans 'Password' %}" required id="id_password2">
+              </div>
+            </div>
+            <div class="main__button">
+              <button type="submit" class="btn btn--large btn--long">{% trans "Create account" %}</button>
+            </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+{% endblock %}

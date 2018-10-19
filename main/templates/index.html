@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Macchina{% endblock %}
+
+{% block content %}
+    <header class="dasboard-header">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-4">
+              <h4 class="dashboard-value__item">
+                  {% trans "Number of Exchanges" %}: <a href="{% url 'exchlist' %}"><span class="dashboard-value__numb-exchange dotted">{{ exchange_number }}</span></a>
+              </h4>
+            </div>
+            <div class="col-sm-4">
+              <h4 class="dashboard-value__item">
+                {% trans "Number of Currencies" %}: <a href="{% url 'currlist' %}"><span class="dashboard-value__numb-exchange dotted">{{ currencies_number }}</span></a>
+              </h4>
+            </div>
+            <div class="col-sm-4">
+              <h4 class="dashboard-value__item">
+                {% trans "Total arbitrage volume" %}: <span class="dashboard-value__numb-exchange">{% if total_in_usd %}${{ total_vol|intcomma }}{% else %}{{ total_vol|intcomma }} BTC{% endif %}</span>
+              </h4>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-menu">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="minvol-input dashboard-menu__item">
+                            <div><span class="dashboard-menu__item__title">{% trans "Minimum 24h volume" %}</span>
+                            <span style="line-height:10px"><a class="tooltips help-sign" href="javascript:void(0);">
+                            &nbsp;&nbsp;?&nbsp;&nbsp;
+                            <span>{% trans "Every arbitrage trades involves multiple exchanges. This filter allows you to restrict the search to the markets for which the daily trading volume is greater than the specified amount." %}</span>
+                            </a></span>
+                            </div>
+                            <form class="dash__form" action="#" onsubmit="return false;" method="">
+                              <input class="dash__input main__input" type="number" id="volumeInput" placeholder="e.g. 25">
+                              <button class="dash-form__button">BTC</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="row incl-exch">
+                            <div class="col-sm-12">
+                                <div class="dashboard-menu__item">
+                                    <span class="dashboard-menu__item__title">{% trans "Included exchanges" %}</span>
+                                    <button class="dash__input includeExchgsBtn" data-toggle="collapse" data-target="#includeCollapse" aria-expanded="false" aria-controls="includeCollapse">
+                                        <span>{% trans "Click to select" %}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="dashboard-menu__item exclude-currencies-selection">
+                            <span class="dashboard-menu__item__title">{% trans "Included currencies" %}</span>
+                            <select id="incl-curr" class="main__input js-select" name="incl-curr[]" multiple="multiple">
+                                {% for c in currencies %}
+                                <option value="{{ c }}">{{ c }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <select id="incl-exch" class="js-select" name="incl-exch[]" multiple="multiple" style='display: none; width: 100%'>
+                            {% for e in exchanges %}
+                            <option value="{{ e }}">{{ e }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="collapse col-sm-12 col-centered" id="includeCollapse" align="center">
+                            <div class="includeExchangesContent">
+                              <div class="includeExchangesButtons">
+                                  <button class="btn btn--default btn--box btn--white" id="allIncludeExchgs">ALL</button>
+                                  <button class="btn btn--default btn--box btn--white" id="noneIncludeExchgs">NONE</button><!--includeExchgsInnerBtn-->
+                              </div>
+                                {% for g in exchange_groups %}
+                                <div class="includeExchangesContent__subgroup">
+                                    {% for e in g %}
+                                    <div class="include__checkbox-box">
+                                      <input id="{{e}}" class="includeExchgsCheck {{e}}" type="checkbox" data-inputgroup="{{e}}"/>
+                                      <label class="dash__control--panel" for="{{e}}">{{e}}</label>
+                                    </div>
+                                    {% endfor %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="includeExchangesUpdate">
+                        <button class="btn btn--default btn--white dash__update-table" id="updateTableBtn">Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="dash__table-main">
+        <div class="tableNoticeWrapper col-md-12">
+            <span>{% trans "Click on any row to see the details" %}</span>
+        </div>
+
+        <table id="dt_table" class="table table-striped table-custom" width="100%">
+            <thead>
+                <tr>
+                    <th>{% trans "Taker Profit" %}<span aria-hidden="true" class="arrow_triangle-down dashboard-table__table-arrow"></span></th>
+                    <th>{% trans "Spread" %}<span aria-hidden="true" class="arrow_triangle-down dashboard-table__table-arrow"></span></th>
+                    <th>{% trans "Timestamp" %} <span aria-hidden="true" class="arrow_triangle-down dashboard-table__table-arrow"></span></th>
+                    <th>{% trans "24h Volume (BTC)" %} <span aria-hidden="true" class="arrow_triangle-up dashboard-table__table-arrow"></span></th>
+                    <th>{% trans "Exchanges" %} <span aria-hidden="true" class="arrow_triangle-up dashboard-table__table-arrow"></span></th>
+                    <th>{% trans "Currencies" %} <span aria-hidden="true" class="arrow_triangle-up dashboard-table__table-arrow"></span></th>
+                    <th>{% trans "Simulation" %} <span aria-hidden="true" class="arrow_triangle-up dashboard-table__table-arrow"></span></th>
+                </tr>
+              </thead>
+       </table>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        const dtUrl = '{% url "table" collection="simul" %}',
+              detailsHeading = '{% trans "Details" %}',
+              marketDataHeading = '{% trans "Market Data" %}',
+              spreadHeading = '{% trans "Spread" %}',
+              discoveryHeading = '{% trans "Discovery" %}',
+              rateHeading = '{% trans "Rate" %}',
+              volumeHeading = '{% trans "24h Volume" %}',
+              feeHeadings = {
+                  taker_fee: '{% trans "Taker Fee" %}',
+                  maker_fee: '{% trans "Maker Fee" %}',
+              },
+              feeLegends = {
+                  no_fee: '{% trans "No fees" %}',
+                  taker_fee: '{% trans "With taker fees" %}',
+                  maker_fee: '{% trans "With maker fees" %}',
+                  maker_taker_fee: '{% trans "With maker/taker fees" %}',
+              },
+              regions = JSON.parse('{{ regions|safe }}');
+    </script>
+    <script>
+        {% if not user.is_authenticated %}
+            $("#button-container").css("display", "none");
+        {% endif %}
+    </script>
+{% endblock %}
+
+{% block render %}
+    {% include "jsrender-templates.html" %}
+{% endblock %}

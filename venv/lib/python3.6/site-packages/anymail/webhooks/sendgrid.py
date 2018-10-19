@@ -1,0 +1,192 @@
+import json
+from datetime import datetime
+
+from django.utils.timezone import utc
+
+from .base import AnymailBaseWebhookView
+from ..inbound import AnymailInboundMessage
+from ..signals import inbound, tracking, AnymailInboundEvent, AnymailTrackingEvent, EventType, RejectReason
+
+
+class SendGridTrackingWebhookView(AnymailBaseWebhookView):
+    """Handler for SendGrid delivery and engagement tracking webhooks"""
+
+    esp_name = "SendGrid"
+    signal = tracking
+
+    def parse_events(self, request):
+        esp_events = json.loads(request.body.decode('utf-8'))
+        return [self.esp_to_anymail_event(esp_event) for esp_event in esp_events]
+
+    event_types = {
+        # Map SendGrid event: Anymail normalized type
+        'bounce': EventType.BOUNCED,
+        'deferred': EventType.DEFERRED,
+        'delivered': EventType.DELIVERED,
+        'dropped': EventType.REJECTED,
+        'processed': EventType.QUEUED,
+        'click': EventType.CLICKED,
+        'open': EventType.OPENED,
+        'spamreport': EventType.COMPLAINED,
+        'unsubscribe': EventType.UNSUBSCRIBED,
+        'group_unsubscribe': EventType.UNSUBSCRIBED,
+        'group_resubscribe': EventType.SUBSCRIBED,
+    }
+
+    reject_reasons = {
+        # Map SendGrid reason/type strings (lowercased) to Anymail normalized reject_reason
+        'invalid': RejectReason.INVALID,
+        'unsubscribed address': RejectReason.UNSUBSCRIBED,
+        'bounce': RejectReason.BOUNCED,
+        'blocked': RejectReason.BLOCKED,
+        'expired': RejectReason.TIMED_OUT,
+    }
+
+    def esp_to_anymail_event(self, esp_event):
+        event_type = self.event_types.get(esp_event['event'], EventType.UNKNOWN)
+        try:
+            timestamp = datetime.fromtimestamp(esp_event['timestamp'], tz=utc)
+        except (KeyError, ValueError):
+            timestamp = None
+
+        if esp_event['event'] == 'dropped':
+            mta_response = None  # dropped at ESP before even getting to MTA
+            reason = esp_event.get('type', esp_event.get('reason', ''))  # cause could be in 'type' or 'reason'
+            reject_reason = self.reject_reasons.get(reason.lower(), RejectReason.OTHER)
+        else:
+            # MTA response is in 'response' for delivered; 'reason' for bounce
+            mta_response = esp_event.get('response', esp_event.get('reason', None))
+            reject_reason = None
+
+        # SendGrid merges metadata ('unique_args') with the event.
+        # We can (sort of) split metadata back out by filtering known
+        # SendGrid event params, though this can miss metadata keys
+        # that duplicate SendGrid params, and can accidentally include
+        # non-metadata keys if SendGrid modifies their event records.
+        metadata_keys = set(esp_event.keys()) - self.sendgrid_event_keys
+        if len(metadata_keys) > 0:
+            metadata = {key: esp_event[key] for key in metadata_keys}
+        else:
+            metadata = {}
+
+        return AnymailTrackingEvent(
+            event_type=event_type,
+            timestamp=timestamp,
+            message_id=esp_event.get('smtp-id', None),
+            event_id=esp_event.get('sg_event_id', None),
+            recipient=esp_event.get('email', None),
+            reject_reason=reject_reason,
+            mta_response=mta_response,
+            tags=esp_event.get('category', []),
+            metadata=metadata,
+            click_url=esp_event.get('url', None),
+            user_agent=esp_event.get('useragent', None),
+            esp_event=esp_event,
+        )
+
+    # Known keys in SendGrid events (used to recover metadata above)
+    sendgrid_event_keys = {
+        'asm_group_id',
+        'attempt',  # MTA deferred count
+        'category',
+        'cert_err',
+        'email',
+        'event',
+        'ip',
+        'marketing_campaign_id',
+        'marketing_campaign_name',
+        'newsletter',  # ???
+        'nlvx_campaign_id',
+        'nlvx_campaign_split_id',
+        'nlvx_user_id',
+        'pool',
+        'post_type',
+        'reason',  # MTA bounce/drop reason; SendGrid suppression reason
+        'response',  # MTA deferred/delivered message
+        'send_at',
+        'sg_event_id',
+        'sg_message_id',
+        'smtp-id',
+        'status',  # SMTP status code
+        'timestamp',
+        'tls',
+        'type',  # suppression reject reason ("bounce", "blocked", "expired")
+        'url',  # click tracking
+        'url_offset',  # click tracking
+        'useragent',  # click/open tracking
+    }
+
+
+class SendGridInboundWebhookView(AnymailBaseWebhookView):
+    """Handler for SendGrid inbound webhook"""
+
+    esp_name = "SendGrid"
+    signal = inbound
+
+    def parse_events(self, request):
+        return [self.esp_to_anymail_event(request)]
+
+    def esp_to_anymail_event(self, request):
+        # Inbound uses the entire Django request as esp_event, because we need POST and FILES.
+        # Note that request.POST is case-sensitive (unlike email.message.Message headers).
+        esp_event = request
+        if 'headers' in request.POST:
+            # Default (not "Send Raw") inbound fields
+            message = self.message_from_sendgrid_parsed(esp_event)
+        elif 'email' in request.POST:
+            # "Send Raw" full MIME
+            message = AnymailInboundMessage.parse_raw_mime(request.POST['email'])
+        else:
+            raise KeyError("Invalid SendGrid inbound event data (missing both 'headers' and 'email' fields)")
+
+        try:
+            envelope = json.loads(request.POST['envelope'])
+        except (KeyError, TypeError, ValueError):
+            pass
+        else:
+            message.envelope_sender = envelope['from']
+            message.envelope_recipient = envelope['to'][0]
+
+        message.spam_detected = None  # no simple boolean field; would need to parse the spam_report
+        try:
+            message.spam_score = float(request.POST['spam_score'])
+        except (KeyError, TypeError, ValueError):
+            pass
+
+        return AnymailInboundEvent(
+            event_type=EventType.INBOUND,
+            timestamp=None,  # SendGrid doesn't provide an inbound event timestamp
+            event_id=None,  # SendGrid doesn't provide an idempotent inbound message event id
+            esp_event=esp_event,
+            message=message,
+        )
+
+    def message_from_sendgrid_parsed(self, request):
+        """Construct a Message from SendGrid's "default" (non-raw) fields"""
+
+        try:
+            charsets = json.loads(request.POST['charsets'])
+        except (KeyError, ValueError):
+            charsets = {}
+
+        try:
+            attachment_info = json.loads(request.POST['attachment-info'])
+        except (KeyError, ValueError):
+            attachments = None
+        else:
+            # Load attachments from posted files
+            attachments = [
+                AnymailInboundMessage.construct_attachment_from_uploaded_file(
+                    request.FILES[att_id],
+                    content_id=attachment_info[att_id].get("content-id", None))
+                for att_id in sorted(attachment_info.keys())
+            ]
+
+        return AnymailInboundMessage.construct(
+            raw_headers=request.POST.get('headers', ""),  # includes From, To, Cc, Subject, etc.
+            text=request.POST.get('text', None),
+            text_charset=charsets.get('text', 'utf-8'),
+            html=request.POST.get('html', None),
+            html_charset=charsets.get('html', 'utf-8'),
+            attachments=attachments,
+        )

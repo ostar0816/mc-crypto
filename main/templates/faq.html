@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-10">
+            <h1>FAQ</h1>
+            <div class="faq-items">
+                <h3>Does Macchina communicate with the exchanges directly?</h3>
+                <p>Yes, Macchina is built on top of a wrapper for all the APIs
+                of the exchanges it supports, which are more than 100. At the
+                moment this wrapper is not public but we may consider
+                open-sourcing it in the future.</p>
+                <h3>What happens if an arbitrage opportunity is no longer
+                    profitable?</h3>
+                <p>Macchina monitors arbitrage opportunities periodically and
+                when it detects that an arbitrage opportunity is no longer
+                profitable it will delete it from the pool of the current
+                arbitrage opportunities.</p>
+                <h3>What happens if an exchange disappears?</h3>
+                <p>If Macchina cannot communicate with an exchange, arbitrage
+                opportunities will become old and they will be automatically
+                removed from the pool of the current arbitrage
+                opportunities.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

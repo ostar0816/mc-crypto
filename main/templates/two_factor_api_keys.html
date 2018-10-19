@@ -1,0 +1,127 @@
+{% load i18n %}
+{% load static %}
+{% load render_bundle from webpack_loader %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" type="text/css" href="{% static "css/spectre.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.1/css/responsive.dataTables.min.css">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="{% static "css/style.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "css/select2-theme-spectre.css" %}">
+    <style type="text/css">
+        body {
+            background-color: #A80FFF;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container col-10 twoFaAuthHeader">
+    <div class="col-12">
+        <h4 style="color: #F1F1F1; display: inline;">Macchina</h4>
+    </div>
+</div>
+<hr>
+<div class="container col-10">
+    <div class="columns">
+        <div class="col-5 twoFaCompleted col-mr-auto">
+            <div class="twoFaCompletedChild">
+                <input type="radio" name="twoFactorAuthCompleted" id="twoFactorAuthCompleted" checked/>
+                <h6 style="color: #F1F1F1; display: inline;">2-Factor Authentication</h6>
+            </div>
+        </div>
+        <div class="col-5 twoFaCompleted col-ml-auto">
+            <div class="twoFaCompletedChild">
+                <input type="radio" name="apiKeysConfigurationCompleted" id="apiKeysConfigurationCompleted" />
+                <h6 style="color: #F1F1F1; display: inline;">API Keys Configuration</h6>
+            </div>
+        </div>
+    </div>
+</div>
+<br><br>
+
+{% block content %}
+<div class="container col-10">
+    <div class="columns">
+        <form action="/save_preferences" method="POST" class="col-6 col-mx-auto" id="save_preferences_form">
+            {% csrf_token %}
+            <h2 style="color: #FFFDFD">API Keys Configuration</h2>
+            <div id="two_fa_choose_method" style="text-align: left">
+                <h5 style="color: #F1F1F1">Choose a method:</h5>
+                <div class="form-group">
+                    <div class="col-7-9 col-mx-auto">
+                        <select id="incl-exch" class="js-select prefExclSelect" name="incl-exch[]" multiple="multiple" style='width: 100%'>
+                            {% for e in exchanges %}
+                            <option value="{{ e }}">{{ e }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div id="preferencesSubmit" align="center">
+                        <button type="submit" class="btn btn-success">{% trans "Continue" %}</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="columns">
+        <div id="skipAPIKeysConfiguration" class="col-6 col-mx-auto">
+            <button id="skipAPIKeysConfigurationBtn" class="btn btn-default">{% trans "Skip this step" %}</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.1/js/dataTables.responsive.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+
+<script src="{% static "js/jsrender.min.js" %}"></script>
+
+{% render_bundle 'main' 'js' %}
+
+<script>
+    $(document).ready(function () {
+        $('#twoFactorAuthCompleted').attr('disabled', true);
+        $('#apiKeysConfigurationCompleted').attr('disabled', true);
+
+        $('.select2-search__field').css('background-color', '#5512B0')
+        $('.select2-selection--multiple').css('background-color', '#5512B0')
+        /*$('.select2-selection__choice').css({
+
+        });*/
+        $('.select2-selection__choice__remove').css({
+            'color': '#5512B0'
+        });
+
+        $('#skipAPIKeysConfigurationBtn').on('click', function (e) {
+            e.preventDefault();
+        });
+
+        $('#save_preferences_form').submit(function (e) {
+            e.preventDefault();
+
+            const apiKeysSelectedCount = $('.select2-selection__rendered').children('.select2-selection__choice').length;
+
+            if(apiKeysSelectedCount <= 0) {
+                alert('Please select API Key');
+            } else if(apiKeysSelectedCount === 1){
+                $('#apiKeysConfigurationCompleted').attr('checked', true);
+                alert('Ok Api key selected');
+            } else {
+                $('#apiKeysConfigurationCompleted').attr('checked', true);
+                alert('Ok Api keys selected');
+            }
+        })
+
+    });
+
+</script>
+</body>
+</html>

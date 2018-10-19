@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-10">
+            <h1>Exchanges with arbitrage opportunities</h1>
+            <p>In this very moment, Macchina has detected arbitrage opportunities between
+            the following {{ exch_list|length }} exchanges:</p>
+            <ul class="elements-list">
+                {% for exch in exch_list %}
+                <li>{{ exch }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

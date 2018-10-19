@@ -1,0 +1,94 @@
+{% load i18n %}
+{% load static %}
+{% load render_bundle from webpack_loader %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" type="text/css" href="{% static "css/spectre.min.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "css/style.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "css/intTellInput.css" %}">
+
+    <style type="text/css">
+        body {
+            background-color: #A80FFF;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container col-10 twoFaAuthHeader">
+        <div class="col-12">
+            <h4 style="color: #F1F1F1; display: inline;">Macchina</h4>
+        </div>
+    </div>
+    <hr>
+    <div class="container col-10">
+        <div class="columns">
+            <div class="col-5 twoFaCompleted col-mr-auto">
+                <div class="twoFaCompletedChild">
+                    <input type="radio" name="twoFactorAuthCompleted" id="twoFactorAuthCompleted" checked/>
+                    <h6 style="color: #F1F1F1; display: inline;">2-Factor Authentication</h6>
+                </div>
+            </div>
+            <div class="col-5 twoFaCompleted col-ml-auto">
+                <div class="twoFaCompletedChild">
+                    <input type="radio" name="apiKeysConfigurationCompleted" id="apiKeysConfigurationCompleted" />
+                    <h6 style="color: #F1F1F1; display: inline;">API Keys Configuration</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br><br>
+    {% block content %}
+    <div class="container col-10">
+        <div class="columns">
+            <form action="/two_fa_auth" method="POST" id="two_fa_auth_form" class="col-6 col-mx-auto">
+                {% csrf_token %}
+                <h2 style="color: #FFFDFD">2-Factor Authentication</h2>
+
+                <div id="two_fa_choose_method" style="text-align: left">
+                    <h5 style="color: #F1F1F1">Choose a method:</h5>
+                    <input type="radio" name="authMethod" id="googleAuthRadio" onclick="radioAuthClicked()" checked/><span style="color: white; margin-left: 5px">Google Authenticator</span>
+                    <br>
+                    <input type="radio" name="authMethod" id="smsAuthRadio" onclick="radioAuthClicked()"/><span style="color: white; margin-left: 5px">SMS</span>
+                    <hr/>
+
+                    <div id="googleAuthDiv">
+                        <div id="two_fa_auth_content"></div>
+                        <div align="center">
+                            <button type="submit" id="submitTwoFaAuthForm">Continue</button>
+                        </div>
+                    </div>
+
+                    <div id="smsAuthDiv" style="display: none;">
+                        <p class="two_fa_auth_h3" style="margin-top: 15px">
+                            Enter your phone number:
+
+                            <input class="form-input" type="tel" id="phoneAuthNumber" placeholder="Your phone">
+                        </p>
+                        <div align="center">
+                            <button id="submitTwoFaSMSAuthForm">Send me SMS</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endblock %}
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/otplib@^6.0.0/otplib-browser.js"></script>
+    <script src="{% static "js/qrcode.js" %}"></script>
+    <script src="{% static "js/intTelInput.min.js" %}"></script>
+
+    <script type="text/javascript" src="{% static "js/twoFaAuth.js" %}"></script>
+
+    <script>
+        $("#phoneAuthNumber").intlTelInput();
+        $('#twoFactorAuthCompleted').attr('disabled', true);
+        $('#apiKeysConfigurationCompleted').attr('disabled', true);
+    </script>
+</body>
+</html>

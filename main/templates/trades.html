@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+    {% for trade_plan in trade_plan_list %}
+        {{ trade_plan.loop }} {{ trade_plan.amount }} {{ trade_plan.accepted_at }} {{ trade_plan.status }}
+        {% for action_log in trade_plan.actionlog.all %}
+            <ul>
+                <li>{{ action_log.start_time }}</li>
+                <li>{{ action_log.timestamp }}</li>
+                <li>{{ action_log.exchange }}</li>
+                <li>{{ action_log.loop_num }}</li>
+                <li>{{ action_log.loop_tag }}</li>
+                <li>{{ action_log.additional_info }}</li>
+            </ul>
+        {% endfor %}
+    {% endfor %}
+
+{% endblock %}

@@ -1,0 +1,64 @@
+Metadata-Version: 1.1
+Name: shore
+Version: 0.0.1
+Summary: UNKNOWN
+Home-page: https://github.com/_/shore
+Author: Michele Lacchia
+Author-email: michelelacchia@gmail.com
+License: MIT/Apache-2.0
+Description-Content-Type: UNKNOWN
+Description: shore
+        =====
+        
+        -----
+        
+        Installation
+        ------------
+        
+        To install it, run
+        
+            $ pip install -r requirements.txt
+        
+        Running
+        -------
+        
+        
+        To run Shore, run ``python manage.py runserver --settings=shore.settings --configuration=Dev`` (for dev mode),
+        run ``python manage.py runserver --settings=shore.settings --configuration=Prod`` (for prod mode)
+        on the command line. It starts a
+        local server that listens on http://localhost:8000.
+        
+        
+        Webpack configurations
+        ----------------------
+        
+        For webpack make sure that you have installed webpack globally (version 3.1.0)
+        ``npm install webpack -g``.  Run ``npm install`` in shore/shore directory, then
+        do ``webpack --config webpack.config.js`` for DEBUG=True and ``webpack --config
+        webpack_production.config.js`` for DEBUG=False.
+        
+        
+        Database
+        --------
+        
+        To create the PostgreSQL database, use the following commands:
+        
+            $ sudo -u postgres -i
+            # createdb shore
+            # psql shore
+            CREATE ROLE shore WITH LOGIN PASSWORD 'shore';
+            GRANT ALL PRIVILEGES ON DATABASE shore TO shore;
+            ALTER USER shore CREATEDB;
+        
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
