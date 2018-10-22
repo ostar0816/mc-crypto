@@ -1,6 +1,0 @@
-{
-  "fonts": "*.{eot,otf,svg,ttc,ttf,woff,woff2}",
-  "js": "*.js",
-  "css": "*.css",
-  "images": "*.{jpg,png,gif}"
-}
